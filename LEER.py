@@ -1,4 +1,5 @@
-#nos vamos a la cmd y ponemos cd reactjs
+#nos vamos a la cmd y ponemos cd C:\Miproyecto
+#luego nos vamos a cd ldcars
 #luego le damos a enter 
 #y ponemos el siguiente comando
 #npm start 
