@@ -83,7 +83,7 @@ function App() {
             <input type="number" placeholder="Precio ($)" value={formVehiculo.precio} onChange={(e) => setFormVehiculo({...formVehiculo, precio: e.target.value})} required />
             <select value={formVehiculo.estado} onChange={(e) => setFormVehiculo({...formVehiculo, estado: e.target.value})}>
               <option value="nuevo">Nuevo</option>
-              <option value="semi">Semi-usado</option>
+se agrega un carrusel y ademas un buscador de los productos y autos que tenemos a la venta (queda arreglar un poco el buscador)              <option value="semi">Semi-usado</option>
               <option value="usado">Usado</option>
             </select>
             <button type="submit" className="btn-add">Agregar Vehículo</button>
