@@ -3,140 +3,132 @@ import './App.css';
 import Carrusel from './components/Carrusel';
 
 function App() {
-  // --- ESTADOS PARA VEHICULOS ---
+  const [esAdmin, setEsAdmin] = useState(false);
+  const [busqueda, setBusqueda] = useState('');
+
+  // Estados de Datos
   const [vehiculos, setVehiculos] = useState([
-    { id: 1, marca: "Toyota", modelo: "RAV4", anio: 2022, patente: "ABCD12", color: "Gris", estado: "semi", precio: 24500000 }
+    { id: 1, marca: "Toyota", modelo: "RAV4", anio: 2022, patente: "ABCD12", precio: 24500000 }
   ]);
+  const [formVehiculo, setFormVehiculo] = useState({ marca: '', modelo: '', precio: '' });
 
-  const [formVehiculo, setFormVehiculo] = useState({
-    marca: '', modelo: '', anio: '', patente: '', color: '', estado: 'nuevo', precio: ''
-  });
-
-  // --- ESTADOS PARA ARTÍCULOS ---
   const [articulos, setArticulos] = useState([
-    { id: 1, nombre: "Neumático Michelin", precio: 85000, cantidad: 12, categoria: "Accesorios", procedencia: "Importado", estado: "nuevo" }
+    { id: 1, nombre: "Neumático Michelin", precio: 85000, categoria: "Accesorios" }
   ]);
+  const [formArticulo, setFormArticulo] = useState({ nombre: '', precio: '', categoria: '' });
 
-  const [formArticulo, setFormArticulo] = useState({
-    nombre: '', precio: '', cantidad: '', categoria: '', procedencia: '', estado: 'nuevo'
-  });
+  // Lógica de Filtrado (Buscador)
+  const vehiculosFiltrados = vehiculos.filter(v => 
+    v.marca.toLowerCase().includes(busqueda.toLowerCase()) || 
+    v.modelo.toLowerCase().includes(busqueda.toLowerCase())
+  );
 
-  // --- CREADOR DE FORMULARIOS ---
+  const articulosFiltrados = articulos.filter(a => 
+    a.nombre.toLowerCase().includes(busqueda.toLowerCase())
+  );
+
+  // Funciones de Acción
   const handleAgregarVehiculo = (e) => {
     e.preventDefault();
-    const nuevoVehiculo = {
-      ...formVehiculo,
-      id: Date.now(), // Genera un ID único temporal
-      anio: parseInt(formVehiculo.anio),
-      precio: parseFloat(formVehiculo.precio)
-    };
-    setVehiculos([...vehiculos, nuevoVehiculo]);
-    // Limpiar formulario
-    setFormVehiculo({ marca: '', modelo: '', anio: '', patente: '', color: '', estado: 'nuevo', precio: '' });
+    setVehiculos([...vehiculos, { ...formVehiculo, id: Date.now(), precio: parseFloat(formVehiculo.precio) }]);
+    setFormVehiculo({ marca: '', modelo: '', precio: '' });
   };
 
   const handleAgregarArticulo = (e) => {
     e.preventDefault();
-    const nuevoArticulo = {
-      ...formArticulo,
-      id: Date.now(),
-      precio: parseFloat(formArticulo.precio),
-      cantidad: parseInt(formArticulo.cantidad)
-    };
-    setArticulos([...articulos, nuevoArticulo]);
-    // Limpiar formulario
-    setFormArticulo({ nombre: '', precio: '', cantidad: '', categoria: '', procedencia: '', estado: 'nuevo' });
+    setArticulos([...articulos, { ...formArticulo, id: Date.now(), precio: parseFloat(formArticulo.precio) }]);
+    setFormArticulo({ nombre: '', precio: '', categoria: '' });
   };
 
-  // --- ELIMINAR ---
-  const handleEliminarVehiculo = (id) => {
-    setVehiculos(vehiculos.filter(v => v.id !== id));
-  };
-
-  const handleEliminarArticulo = (id) => {
-    setArticulos(articulos.filter(a => a.id !== id));
+  const enviarWhatsApp = (item, tipo) => {
+    const mensaje = tipo === 'auto' ? `Hola, me interesa el ${item.marca} ${item.modelo}` : `Hola, me interesa el repuesto: ${item.nombre}`;
+    window.open(`https://wa.me/56900000000?text=${encodeURIComponent(mensaje)}`, '_blank');
   };
 
   return (
     <div className="admin-container">
       <header>
         <h1>LDcars Automotriz</h1>
-        <p>Gestión de Compra/Venta de Vehículos y Repuestos</p>
+        <input 
+          type="text" 
+          placeholder="🔍 Buscar vehículos o repuestos..." 
+          className="search-bar"
+          value={busqueda}
+          onChange={(e) => setBusqueda(e.target.value)} 
+        />
+        
+        {/* BOTÓN ADMIN CORREGIDO */}
+        <button 
+          onClick={() => {
+            if (!esAdmin) {
+              const pass = prompt("Ingrese clave admin:");
+              if (pass === "1234") { setEsAdmin(true); } 
+              else { alert("Clave incorrecta"); }
+            } else {
+              setEsAdmin(false);
+            }
+          }}
+          style={{ backgroundColor: esAdmin ? '#dc3545' : '#28a745', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '20px', cursor: 'pointer' }}
+        >
+          {esAdmin ? "🔒 Cerrar Sesión" : "🔓 Modo Admin"}
+        </button>
       </header>
 
-      {/* --- AQUI ESTA EL CARRUSEL --- */}
       <Carrusel />
 
       <div className="dashboard-grid">
-        
-        {/* --- SECCIÓN VEHÍCULOS --- */}
-        <section className="crud-section">
-          <h2>Gestión de Vehículos</h2>
-          
-          {/* Formulario */}
-          <form onSubmit={handleAgregarVehiculo} className="crud-form">
-            <input type="text" placeholder="Marca" value={formVehiculo.marca} onChange={(e) => setFormVehiculo({...formVehiculo, marca: e.target.value})} required />
-            <input type="text" placeholder="Modelo" value={formVehiculo.modelo} onChange={(e) => setFormVehiculo({...formVehiculo, modelo: e.target.value})} required />
-            <input type="number" placeholder="Año" value={formVehiculo.anio} onChange={(e) => setFormVehiculo({...formVehiculo, anio: e.target.value})} required />
-            <input type="text" placeholder="Patente" value={formVehiculo.patente} onChange={(e) => setFormVehiculo({...formVehiculo, patente: e.target.value})} required />
-            <input type="text" placeholder="Color" value={formVehiculo.color} onChange={(e) => setFormVehiculo({...formVehiculo, color: e.target.value})} required />
-            <input type="number" placeholder="Precio ($)" value={formVehiculo.precio} onChange={(e) => setFormVehiculo({...formVehiculo, precio: e.target.value})} required />
-            <select value={formVehiculo.estado} onChange={(e) => setFormVehiculo({...formVehiculo, estado: e.target.value})}>
-              <option value="nuevo">Nuevo</option>
-se agrega un carrusel y ademas un buscador de los productos y autos que tenemos a la venta (queda arreglar un poco el buscador)              <option value="semi">Semi-usado</option>
-              <option value="usado">Usado</option>
-            </select>
-            <button type="submit" className="btn-add">Agregar Vehículo</button>
-          </form>
-
-          {/* Lista/Tabla */}
+        {/* SECCIÓN VEHÍCULOS */}
+        <section>
+          <h2>Catálogo de Vehículos</h2>
+          {esAdmin && (
+            <form onSubmit={handleAgregarVehiculo} className="crud-form">
+              <input placeholder="Marca" onChange={(e) => setFormVehiculo({...formVehiculo, marca: e.target.value})} required />
+              <input placeholder="Modelo" onChange={(e) => setFormVehiculo({...formVehiculo, modelo: e.target.value})} required />
+              <input type="number" placeholder="Precio" onChange={(e) => setFormVehiculo({...formVehiculo, precio: e.target.value})} required />
+              <button type="submit">Guardar</button>
+            </form>
+          )}
           <div className="list-container">
-            {vehiculos.map(v => (
+            {vehiculosFiltrados.map(v => (
               <div key={v.id} className="item-card">
-                <div>
-                  <strong>{v.marca} {v.modelo} ({v.anio})</strong>
-                  <p>Patente: {v.patente} | Color: {v.color} | Estado: {v.estado}</p>
-                  <span className="price">${v.precio.toLocaleString()}</span>
-                </div>
-                <button onClick={() => handleEliminarVehiculo(v.id)} className="btn-delete">Eliminar</button>
+                <h3>{v.marca} {v.modelo}</h3>
+                <p>Precio: ${v.precio.toLocaleString()}</p>
+                <button className="btn-whatsapp" onClick={() => enviarWhatsApp(v, 'auto')}>WhatsApp 💬</button>
+                {esAdmin && <button className="btn-delete" onClick={() => setVehiculos(vehiculos.filter(veh => veh.id !== v.id))}>Eliminar</button>}
               </div>
             ))}
           </div>
         </section>
 
-        {/* --- SECCIÓN ARTÍCULOS --- */}
-        <section className="crud-section">
+        {/* SECCIÓN REPUESTOS */}
+        <section>
           <h2>Venta de Repuestos</h2>
-          
-          {/* Formulario */}
-          <form onSubmit={handleAgregarArticulo} className="crud-form">
-            <input type="text" placeholder="Nombre Artículo" value={formArticulo.nombre} onChange={(e) => setFormArticulo({...formArticulo, nombre: e.target.value})} required />
-            <input type="number" placeholder="Precio ($)" value={formArticulo.precio} onChange={(e) => setFormArticulo({...formArticulo, precio: e.target.value})} required />
-            <input type="number" placeholder="Cantidad Stock" value={formArticulo.cantidad} onChange={(e) => setFormArticulo({...formArticulo, cantidad: e.target.value})} required />
-            <input type="text" placeholder="Categoría" value={formArticulo.categoria} onChange={(e) => setFormArticulo({...formArticulo, categoria: e.target.value})} required />
-            <input type="text" placeholder="Procedencia (Nacional/Importado)" value={formArticulo.procedencia} onChange={(e) => setFormArticulo({...formArticulo, procedencia: e.target.value})} required />
-            <select value={formArticulo.estado} onChange={(e) => setFormArticulo({...formArticulo, estado: e.target.value})}>
-              <option value="nuevo">Nuevo</option>
-              <option value="usado">Usado</option>
-            </select>
-            <button type="submit" className="btn-add">Agregar Artículo</button>
-          </form>
-
-          {/* Lista/Tabla */}
+          {esAdmin && (
+            <form onSubmit={handleAgregarArticulo} className="crud-form">
+              <input placeholder="Nombre" onChange={(e) => setFormArticulo({...formArticulo, nombre: e.target.value})} required />
+              <button type="submit">Guardar</button>
+            </form>
+          )}
           <div className="list-container">
-            {articulos.map(a => (
+            {articulosFiltrados.map(a => (
               <div key={a.id} className="item-card">
-                <div>
-                  <strong>{a.nombre}</strong>
-                  <p>Cat: {a.categoria} | Stock: {a.cantidad} | Origen: {a.procedencia}</p>
-                  <span className="price">${a.precio.toLocaleString()}</span>
-                </div>
-                <button onClick={() => handleEliminarArticulo(a.id)} className="btn-delete">Eliminar</button>
+                <h3>{a.nombre}</h3>
+                <p>Precio: ${a.precio.toLocaleString()}</p>
+                <button className="btn-whatsapp" onClick={() => enviarWhatsApp(a, 'repuesto')}>WhatsApp 💬</button>
+                {esAdmin && <button className="btn-delete" onClick={() => setArticulos(articulos.filter(art => art.id !== a.id))}>Eliminar</button>}
               </div>
             ))}
           </div>
         </section>
 
+        {/* EQUIPO */}s
+        <section>
+          <h2>Nuestro Equipo</h2>
+          <div className="team-grid">
+            <div className="team-card"><h3>Juan Pérez</h3><p>Gerente de Ventas</p></div>
+            <div className="team-card"><h3>Ana Gómez</h3><p>Atención al Cliente</p></div>
+          </div>
+        </section>
       </div>
     </div>
   );

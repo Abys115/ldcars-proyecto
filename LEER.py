@@ -4,3 +4,8 @@
 #y ponemos el siguiente comando
 #npm start 
 #luego le damos a permitir acceso y estaria listo.
+
+
+
+
+#la clave es 1234 la podemos cambiar en la linea 66
